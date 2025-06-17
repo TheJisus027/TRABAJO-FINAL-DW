@@ -70,7 +70,3 @@ Una vez que el dashboard cargue, un cálido mensaje de bienvenida te recibirá. 
 ## 🙏 Créditos
 
 - Datos obtenidos con amor y precisión de: [Datos Abiertos Colombia - Establecimientos Educativos de Preescolar, Básica y Media (SIMAT)](https://www.datos.gov.co/Educaci-n/Establecimientos-Educativos-de-Preescolar-B-sica-y/qijw-htwa). ¡Gracias por hacer la información accesible! 💖
-
-```
-
-```
