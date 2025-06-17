@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Educativo - Bogotá</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      /* CSS para el contenedor del canvas, para controlar la responsividad */
+      .chart-canvas-wrapper {
+        position: relative;
+        height: 500px; /* Altura fija para la mayoría de los gráficos */
+        width: 100%;
+      }
+
+      /* Para gráficos Doughnut/Pie, a veces prefieren un tamaño más cuadrado */
+      .chart-canvas-wrapper.is-doughnut {
+        height: 450px;
+        max-width: 450px; /* Para mantenerlos más cuadrados en pantallas grandes */
+        margin: 0 auto; /* Centrar */
+      }
+
+      #myChart {
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      /* Estilos para el spinner de carga */
+      .loading-spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: #333;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 font-sans antialiased flex min-h-screen">
+    <aside class="w-64 bg-gray-800 text-white p-6 shadow-lg flex-shrink-0">
+      <h2 class="text-2xl font-bold text-center mb-8">Datos Educativos</h2>
+      <nav>
+        <ul>
+          <li class="mb-4">
+            <a
+              href="#"
+              data-module="Zonas"
+              class="block py-2 px-4 rounded hover:bg-gray-700 transition duration-200"
+            >
+              🌍 Por Zonas
+            </a>
+          </li>
+          <li class="mb-4">
+            <a
+              href="#"
+              data-module="TiposEstablecimiento"
+              class="block py-2 px-4 rounded hover:bg-gray-700 transition duration-200"
+            >
+              🏫 Por Tipo de Establecimiento
+            </a>
+          </li>
+          <li class="mb-4">
+            <a
+              href="#"
+              data-module="Jornadas"
+              class="block py-2 px-4 rounded hover:bg-gray-700 transition duration-200"
+            >
+              ⏰ Por Jornadas
+            </a>
+          </li>
+          <li class="mb-4">
+            <a
+              href="#"
+              data-module="ServicioYPropiedad"
+              class="block py-2 px-4 rounded hover:bg-gray-700 transition duration-200"
+            >
+              🤝 Servicio y Propiedad
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="flex-1 p-8 overflow-auto">
+      <h1 class="text-3xl font-bold mb-6 text-gray-800">
+        Visualización de Establecimientos Educativos en Bogotá
+      </h1>
+
+      <div
+        id="initial-message"
+        class="bg-white p-6 rounded-lg shadow-md mb-6 text-center"
+      >
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">
+          Bienvenido al Dashboard Educativo de Bogotá
+        </h2>
+        <p class="text-lg text-gray-600 mb-4">
+          Este programa te permite explorar datos de establecimientos educativos
+          de Preescolar, Básica y Media en Bogotá, basados en información del
+          Sistema de Matrícula Estudiantil de Educación Básica y Media (SIMAT).
+        </p>
+        <p class="text-md text-gray-500">
+          Utiliza el menú de la izquierda para seleccionar el tipo de
+          visualización que deseas explorar y aplicar filtros para refinar tu
+          búsqueda.
+        </p>
+        <p class="text-md text-gray-500 mt-2">
+          ¡Comienza a descubrir patrones y tendencias en la educación del país!
+        </p>
+      </div>
+
+      <p class="text-lg text-gray-600 mb-8">
+        Explora los datos de establecimientos de Preescolar, Básica y Media.
+      </p>
+
+      <div
+        id="filters-container"
+        class="bg-white p-6 rounded-lg shadow-md mb-8 hidden"
+      >
+        <h3 class="text-xl font-semibold mb-4 text-gray-800">Filtros</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label
+              for="filter-naturaleza"
+              class="block text-gray-700 text-sm font-bold mb-2"
+              >Prestador de Servicio:</label
+            >
+            <select
+              id="filter-naturaleza"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            ></select>
+          </div>
+          <div>
+            <label
+              for="filter-jornada"
+              class="block text-gray-700 text-sm font-bold mb-2"
+              >Jornada:</label
+            >
+            <select
+              id="filter-jornada"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            ></select>
+          </div>
+          <div>
+            <label
+              for="filter-nivel"
+              class="block text-gray-700 text-sm font-bold mb-2"
+              >Nivel Educativo:</label
+            >
+            <select
+              id="filter-nivel"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            ></select>
+          </div>
+        </div>
+        <div class="mt-6 text-center">
+          <button
+            id="apply-filters-btn"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            Aplicar Filtros
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="chart-section"
+        class="bg-white p-6 rounded-lg shadow-md min-h-[400px] flex flex-col justify-center items-center"
+      >
+        <div id="chart-canvas-wrapper" class="chart-canvas-wrapper hidden">
+          <canvas id="myChart"></canvas>
+        </div>
+        <div
+          id="loading-overlay"
+          class="absolute inset-0 flex flex-col justify-center items-center bg-white bg-opacity-75 z-10 hidden"
+        >
+          <div class="loading-spinner"></div>
+          <p id="loading-text" class="ml-4 text-gray-700 mt-4">
+            Cargando datos...
+          </p>
+        </div>
+        <p
+          id="chart-description"
+          class="mt-4 text-gray-600 text-sm text-center"
+        ></p>
+      </div>
+    </main>
+
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
